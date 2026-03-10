@@ -3,6 +3,7 @@
 ## Responsibility
 
 `web-ui` is the user-facing frontend application for:
+
 - account creation,
 - browsing nearby available scooters,
 - starting a rental,
@@ -11,6 +12,7 @@
 ## Interaction with Services
 
 The UI consumes backend APIs:
+
 - `user-service` for account flows,
 - `rental-service` for rental lifecycle,
 - `scooter-availability-service` for availability views.

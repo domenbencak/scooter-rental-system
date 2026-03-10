@@ -20,6 +20,7 @@ Manages user accounts and user identity data.
 - `GET /api/v1/users/{userId}` - get user by ID
 
 Alternative gRPC methods:
+
 - `RegisterUser(...)`
 - `GetUser(...)`
 

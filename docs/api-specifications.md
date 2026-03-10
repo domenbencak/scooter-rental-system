@@ -22,6 +22,7 @@ This file defines API contracts only. It does not include implementation details
 ### REST Endpoints
 
 `POST /api/v1/users`
+
 - Purpose: register a user.
 - Request:
 
@@ -45,6 +46,7 @@ This file defines API contracts only. It does not include implementation details
 ```
 
 `GET /api/v1/users/{userId}`
+
 - Purpose: retrieve user details.
 - Response `200 OK`:
 
@@ -71,6 +73,7 @@ service UserService {
 ### REST Endpoints
 
 `POST /api/v1/rentals/start`
+
 - Purpose: start a rental.
 - Request:
 
@@ -96,6 +99,7 @@ service UserService {
 ```
 
 `POST /api/v1/rentals/{rentalId}/end`
+
 - Purpose: end a rental.
 - Request:
 
@@ -103,7 +107,7 @@ service UserService {
 {
   "endLocation": {
     "lat": 46.5601,
-    "lon": 15.6500
+    "lon": 15.65
   }
 }
 ```
@@ -120,6 +124,7 @@ service UserService {
 ```
 
 `GET /api/v1/rentals/active?userId={userId}`
+
 - Purpose: get active rentals for a specific user.
 - Response `200 OK`:
 
@@ -151,6 +156,7 @@ service RentalService {
 ### REST Endpoints
 
 `GET /api/v1/scooters/available?lat={lat}&lon={lon}&radiusMeters={radius}`
+
 - Purpose: find available scooters near a location.
 - Response `200 OK`:
 
@@ -171,6 +177,7 @@ service RentalService {
 ```
 
 `PATCH /api/v1/scooters/{scooterId}/status`
+
 - Purpose: update scooter status (internal use by rental and operations workflows).
 - Request:
 

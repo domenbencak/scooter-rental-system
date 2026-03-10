@@ -19,6 +19,7 @@ Maintains scooter availability and status in the city.
 - `PATCH /api/v1/scooters/{scooterId}/status` - update scooter status
 
 Alternative gRPC methods:
+
 - `CheckAvailableScooters(...)`
 - `UpdateScooterStatus(...)`
 

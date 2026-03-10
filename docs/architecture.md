@@ -3,6 +3,7 @@
 ## 1. Purpose
 
 The scooter rental system is designed as a set of autonomous business services with clear ownership boundaries:
+
 - user identity and account lifecycle,
 - rental lifecycle,
 - scooter availability state.
@@ -21,18 +22,22 @@ The architecture prioritizes independent evolution, explicit contracts, and clea
 Each service contains four layers:
 
 1. `domain/`
+
 - Enterprise business entities and invariants.
 - No framework/database/network code.
 
 2. `application/`
+
 - Use cases and orchestration of domain behavior.
 - Depends only on `domain` abstractions.
 
 3. `interfaces/`
+
 - API contracts (REST controllers, gRPC adapters, DTO mappers).
 - Translates external requests into application use case calls.
 
 4. `infrastructure/`
+
 - Concrete adapters: persistence, messaging, HTTP clients, framework wiring.
 - Implements ports/interfaces declared by inner layers.
 
@@ -54,6 +59,7 @@ All cross-service collaboration goes through API contracts or events.
 ## 5. Communication Model
 
 ### Synchronous API calls
+
 - `web-ui -> user-service`
 - `web-ui -> rental-service`
 - `web-ui -> scooter-availability-service`
@@ -61,6 +67,7 @@ All cross-service collaboration goes through API contracts or events.
 - `rental-service -> scooter-availability-service` (reserve/release scooter)
 
 ### Asynchronous events (future recommendation)
+
 - `rental.started`
 - `rental.ended`
 - `scooter.status.changed`
@@ -70,6 +77,7 @@ Asynchronous messaging reduces coupling and improves resiliency for projections 
 ## 6. Screaming Architecture Convention
 
 The repository layout is business-centered:
+
 - top-level folders are business components (`services/user-service`, `services/rental-service`, etc.),
 - internal folders reflect business roles (`domain`, `application`) rather than specific frameworks.
 

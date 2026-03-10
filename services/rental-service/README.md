@@ -23,6 +23,7 @@ Controls rental lifecycle and enforces rental business rules.
 - `GET /api/v1/rentals/active?userId={userId}` - get active rentals
 
 Alternative gRPC methods:
+
 - `StartRental(...)`
 - `EndRental(...)`
 - `GetActiveRentals(...)`
