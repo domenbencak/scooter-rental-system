@@ -4,41 +4,74 @@
 
 Manages user accounts and user identity data.
 
-## Main Business Entities
+## Implemented Stack
 
-- `User`
-  - `userId`
-  - `email`
-  - `fullName`
-  - `phone`
-  - `status`
-  - `createdAt`
+- Python 3.12
+- FastAPI
+- SQLAlchemy 2.x
+- PostgreSQL
+- Alembic
+- pytest
 
-## Example API Endpoints
+## API Endpoints
 
 - `POST /api/v1/users` - register user
 - `GET /api/v1/users/{userId}` - get user by ID
 
-Alternative gRPC methods:
+## OpenAPI
 
-- `RegisterUser(...)`
-- `GetUser(...)`
+- Swagger UI: `http://localhost:8081/docs`
+- OpenAPI JSON: `http://localhost:8081/openapi.json`
 
-## Communication with Other Services
+## Architecture Summary
 
-- Called by `rental-service` to verify that a user exists and is active before starting a rental.
-- Does not directly call other services in the initial design.
+- `domain/` entity and domain exceptions
+- `application/` ports and use cases
+- `interfaces/` HTTP routes, DTOs, middleware, and exception handlers
+- `infrastructure/` SQLAlchemy models, database setup, repository adapter
 
-## Internal Clean Architecture Layers
+## Run Locally
 
-- `domain/`
-  - User entity rules (e.g., identity consistency).
+1. Install dependencies:
 
-- `application/`
-  - Use cases: register user, fetch user.
+```bash
+pip install -r requirements-dev.txt
+```
 
-- `interfaces/`
-  - REST/gRPC endpoints and DTO mapping.
+2. Set database URL (optional, defaults are provided):
 
-- `infrastructure/`
-  - Persistence implementation, framework wiring, and adapters.
+```bash
+export DATABASE_URL=postgresql+psycopg://user_user:user_pass@localhost:5435/user_db
+```
+
+3. Run migrations:
+
+```bash
+alembic upgrade head
+```
+
+4. Start service:
+
+```bash
+uvicorn main:app --host 0.0.0.0 --port 8081
+```
+
+## Run Tests
+
+```bash
+pytest
+```
+
+## Run with Docker Compose
+
+From repository root:
+
+```bash
+docker compose up --build user-db user-service
+```
+
+## CI
+
+- Workflow file: `.github/workflows/user-service-ci.yml`
+- Trigger: push changes under `services/user-service/**`
+- CI action: install dependencies and run `pytest`
