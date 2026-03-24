@@ -1,0 +1,19 @@
+{
+  "name": "scooter-availability-service",
+  "version": "1.0.0",
+  "description": "gRPC microservice for scooter availability and status management",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "jest --runInBand"
+  },
+  "dependencies": {
+    "@grpc/grpc-js": "^1.14.0",
+    "@grpc/proto-loader": "^0.8.0",
+    "@grpc/reflection": "^1.0.4",
+    "@seald-io/nedb": "^4.1.2"
+  },
+  "devDependencies": {
+    "jest": "^30.2.0"
+  }
+}

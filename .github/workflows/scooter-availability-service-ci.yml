@@ -1,0 +1,29 @@
+name: scooter-availability-service-ci
+
+on:
+  push:
+    paths:
+      - "services/scooter-availability-service/**"
+      - ".github/workflows/scooter-availability-service-ci.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/scooter-availability-service
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm test

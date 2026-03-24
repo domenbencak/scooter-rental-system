@@ -28,5 +28,24 @@ services:
     ports:
       - "8081:8081"
 
+  scooter-availability-service:
+    build:
+      context: ./services/scooter-availability-service
+    container_name: scooter-availability-service
+    ports:
+      - "50051:50051"
+    volumes:
+      - scooter-availability-data:/app/data
+
+  grpcui:
+    image: fullstorydev/grpcui:latest
+    container_name: grpcui
+    depends_on:
+      - scooter-availability-service
+    command: ["-plaintext", "scooter-availability-service:50051"]
+    ports:
+      - "8080:8080"
+
 volumes:
   user-db-data:
+  scooter-availability-data:
