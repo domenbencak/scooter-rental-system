@@ -5,7 +5,7 @@ function createLogger() {
   return {
     info: jest.fn(),
     warn: jest.fn(),
-    error: jest.fn()
+    error: jest.fn(),
   };
 }
 
@@ -27,7 +27,12 @@ class InMemoryRepository {
     return [...this.store.values()].filter((item) => {
       const latInRange = Math.abs(item.location.lat - lat) < 0.01;
       const lonInRange = Math.abs(item.location.lon - lon) < 0.01;
-      return item.status === SCOOTER_STATUS.AVAILABLE && latInRange && lonInRange && radiusMeters > 0;
+      return (
+        item.status === SCOOTER_STATUS.AVAILABLE &&
+        latInRange &&
+        lonInRange &&
+        radiusMeters > 0
+      );
     });
   }
 }
@@ -35,13 +40,16 @@ class InMemoryRepository {
 describe("ScooterAvailabilityUseCases", () => {
   test("creates a scooter when updating status for unknown scooter", async () => {
     const repository = new InMemoryRepository();
-    const useCases = new ScooterAvailabilityUseCases({ repository, logger: createLogger() });
+    const useCases = new ScooterAvailabilityUseCases({
+      repository,
+      logger: createLogger(),
+    });
 
     const updated = await useCases.updateScooterStatus({
       scooterId: "S-100",
       status: SCOOTER_STATUS.AVAILABLE,
       batteryLevel: 88,
-      location: { lat: 46.55, lon: 15.64 }
+      location: { lat: 46.55, lon: 15.64 },
     });
 
     expect(updated.scooterId).toBe("S-100");
@@ -59,18 +67,21 @@ describe("ScooterAvailabilityUseCases", () => {
       status: SCOOTER_STATUS.RENTED,
       batteryLevel: 76,
       location: { lat: 46.55, lon: 15.64 },
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     });
 
-    const useCases = new ScooterAvailabilityUseCases({ repository, logger: createLogger() });
+    const useCases = new ScooterAvailabilityUseCases({
+      repository,
+      logger: createLogger(),
+    });
 
     await expect(
       useCases.updateScooterStatus({
         scooterId: "S-200",
         status: SCOOTER_STATUS.CHARGING,
         batteryLevel: 60,
-        location: { lat: 46.551, lon: 15.641 }
-      })
+        location: { lat: 46.551, lon: 15.641 },
+      }),
     ).rejects.toThrow("Invalid status transition");
   });
 
@@ -81,21 +92,24 @@ describe("ScooterAvailabilityUseCases", () => {
       status: SCOOTER_STATUS.AVAILABLE,
       batteryLevel: 50,
       location: { lat: 46.555, lon: 15.646 },
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     });
     await repository.save({
       scooterId: "S-301",
       status: SCOOTER_STATUS.RENTED,
       batteryLevel: 50,
       location: { lat: 46.555, lon: 15.646 },
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     });
 
-    const useCases = new ScooterAvailabilityUseCases({ repository, logger: createLogger() });
+    const useCases = new ScooterAvailabilityUseCases({
+      repository,
+      logger: createLogger(),
+    });
     const scooters = await useCases.checkAvailableScooters({
       lat: 46.555,
       lon: 15.646,
-      radiusMeters: 500
+      radiusMeters: 500,
     });
 
     expect(scooters).toHaveLength(1);

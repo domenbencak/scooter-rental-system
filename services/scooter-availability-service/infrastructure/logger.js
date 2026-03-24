@@ -5,7 +5,7 @@ function createLogger(scope) {
       level,
       scope,
       message,
-      ...details
+      ...details,
     };
 
     if (level === "error") {
@@ -25,10 +25,10 @@ function createLogger(scope) {
     },
     error(message, details) {
       write("error", message, details);
-    }
+    },
   };
 }
 
 module.exports = {
-  createLogger
+  createLogger,
 };

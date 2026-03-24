@@ -5,6 +5,6 @@ module.exports = {
     "application/**/*.js",
     "domain/**/*.js",
     "infrastructure/**/*.js",
-    "interfaces/**/*.js"
-  ]
+    "interfaces/**/*.js",
+  ],
 };

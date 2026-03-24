@@ -25,7 +25,7 @@ async function startServer() {
 
       logger.info("grpc_server_started", { port: boundPort });
       server.start();
-    }
+    },
   );
 }
 

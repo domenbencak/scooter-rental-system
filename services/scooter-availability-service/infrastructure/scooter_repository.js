@@ -34,7 +34,7 @@ class ScooterRepository {
     this.db = new Datastore({
       filename,
       autoload: true,
-      inMemoryOnly
+      inMemoryOnly,
     });
 
     this.db.ensureIndex({ fieldName: "scooterId", unique: true });
@@ -67,7 +67,7 @@ class ScooterRepository {
           }
 
           resolve(affectedDocument);
-        }
+        },
       );
     });
   }
@@ -85,7 +85,7 @@ class ScooterRepository {
             lat,
             lon,
             scooter.location.lat,
-            scooter.location.lon
+            scooter.location.lon,
           );
 
           return distance <= radiusMeters;
@@ -99,5 +99,5 @@ class ScooterRepository {
 
 module.exports = {
   ScooterRepository,
-  haversineDistanceMeters
+  haversineDistanceMeters,
 };

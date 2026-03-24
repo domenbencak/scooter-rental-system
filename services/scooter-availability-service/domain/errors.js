@@ -14,5 +14,5 @@ class InvalidStatusTransitionError extends Error {
 
 module.exports = {
   ValidationError,
-  InvalidStatusTransitionError
+  InvalidStatusTransitionError,
 };
