@@ -1,0 +1,28 @@
+name: rental-service-ci
+
+on:
+  push:
+    paths:
+      - "services/rental-service/**"
+      - ".github/workflows/rental-service-ci.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/rental-service
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Run unit tests
+        run: mvn -B test

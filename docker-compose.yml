@@ -28,6 +28,44 @@ services:
     ports:
       - "8081:8081"
 
+  activemq:
+    image: rmohr/activemq:5.15.9
+    container_name: activemq
+    environment:
+      ACTIVEMQ_ADMIN_LOGIN: admin
+      ACTIVEMQ_ADMIN_PASSWORD: admin
+    ports:
+      - "61616:61616"
+      - "8161:8161"
+
+  rental-db:
+    image: mongo:7
+    container_name: rental-db
+    ports:
+      - "27017:27017"
+    volumes:
+      - rental-db-data:/data/db
+
+  rental-service:
+    build:
+      context: ./services/rental-service
+    container_name: rental-service
+    depends_on:
+      - rental-db
+      - activemq
+      - user-service
+      - scooter-availability-service
+    environment:
+      MONGODB_URI: mongodb://rental-db:27017/rental_db
+      USER_SERVICE_BASE_URL: http://user-service:8081
+      SCOOTER_SERVICE_HOST: scooter-availability-service
+      SCOOTER_SERVICE_PORT: 50051
+      ACTIVEMQ_BROKER_URL: tcp://activemq:61616
+      ACTIVEMQ_USER: admin
+      ACTIVEMQ_PASSWORD: admin
+    ports:
+      - "8082:8082"
+
   scooter-availability-service:
     build:
       context: ./services/scooter-availability-service
@@ -48,4 +86,5 @@ services:
 
 volumes:
   user-db-data:
+  rental-db-data:
   scooter-availability-data:

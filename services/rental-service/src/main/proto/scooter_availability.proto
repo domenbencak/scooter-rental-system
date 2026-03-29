@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package scooteravailability;
+
+option java_multiple_files = true;
+option java_package = "com.scooterrental.rentalservice.scooteravailability";
+option java_outer_classname = "ScooterAvailabilityProto";
+
+service ScooterAvailabilityService {
+  rpc CheckAvailableScooters(CheckAvailableScootersRequest) returns (CheckAvailableScootersResponse);
+  rpc UpdateScooterStatus(UpdateScooterStatusRequest) returns (UpdateScooterStatusResponse);
+}
+
+enum ScooterStatus {
+  SCOOTER_STATUS_UNSPECIFIED = 0;
+  AVAILABLE = 1;
+  RENTED = 2;
+  CHARGING = 3;
+  OUT_OF_SERVICE = 4;
+}
+
+message Scooter {
+  string scooter_id = 1;
+  ScooterStatus status = 2;
+  int32 battery_level = 3;
+  double latitude = 4;
+  double longitude = 5;
+  string updated_at = 6;
+}
+
+message CheckAvailableScootersRequest {
+  double latitude = 1;
+  double longitude = 2;
+  int32 radius_meters = 3;
+}
+
+message CheckAvailableScootersResponse {
+  repeated Scooter scooters = 1;
+}
+
+message UpdateScooterStatusRequest {
+  string scooter_id = 1;
+  ScooterStatus status = 2;
+  int32 battery_level = 3;
+  double latitude = 4;
+  double longitude = 5;
+}
+
+message UpdateScooterStatusResponse {
+  Scooter scooter = 1;
+}

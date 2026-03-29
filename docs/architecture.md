@@ -74,6 +74,10 @@ All cross-service collaboration goes through API contracts or events.
 
 Asynchronous messaging reduces coupling and improves resiliency for projections and analytics.
 
+Current implementation note:
+
+- `rental-service` publishes `rental.started` and `rental.ended` events to ActiveMQ topic `rental.lifecycle`.
+
 ## 6. Screaming Architecture Convention
 
 The repository layout is business-centered:

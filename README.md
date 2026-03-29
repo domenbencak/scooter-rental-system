@@ -1,6 +1,6 @@
 # Scooter Rental System (Microservices)
 
-This repository defines the architecture and planning baseline for a city-wide electric scooter rental platform.
+This repository defines and implements a city-wide electric scooter rental platform based on microservices and clean architecture.
 
 The goal is to design a Clean Architecture based microservice system where:
 
@@ -9,7 +9,7 @@ The goal is to design a Clean Architecture based microservice system where:
 - users end rentals,
 - users check scooter availability.
 
-No production logic is implemented in this repository yet. The focus is architecture, API contracts, and repository organization.
+The backend services are implemented incrementally in different technologies while keeping the architecture, API contracts, and repository organization consistent.
 
 ## Project Scope
 
@@ -70,6 +70,10 @@ Future asynchronous options (recommended):
 
 - `rental.started` event updates availability projection.
 - `rental.ended` event updates scooter state and analytics.
+
+Current asynchronous implementation:
+
+- `rental-service -> ActiveMQ` publishes `rental.started` and `rental.ended` events on topic `rental.lifecycle`.
 
 See `docs/architecture.md` and `docs/api-specifications.md` for details.
 

@@ -1,0 +1,35 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: rental-service
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/rental_db}
+  activemq:
+    broker-url: ${ACTIVEMQ_BROKER_URL:tcp://localhost:61616}
+    user: ${ACTIVEMQ_USER:admin}
+    password: ${ACTIVEMQ_PASSWORD:admin}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+app:
+  user-service:
+    base-url: ${USER_SERVICE_BASE_URL:http://localhost:8081}
+  scooter-service:
+    host: ${SCOOTER_SERVICE_HOST:localhost}
+    port: ${SCOOTER_SERVICE_PORT:50051}
+    availability-radius-meters: ${SCOOTER_AVAILABILITY_RADIUS_METERS:500}
+  messaging:
+    rental-topic: ${RENTAL_EVENTS_TOPIC:rental.lifecycle}
+
+logging:
+  level:
+    root: INFO
+    com.scooterrental.rentalservice: INFO
