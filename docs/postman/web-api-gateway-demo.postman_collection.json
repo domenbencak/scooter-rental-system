@@ -1,0 +1,194 @@
+{
+  "info": {
+    "name": "Scooter Rental - Web API Gateway Demo",
+    "_postman_id": "6d47722d-8aa7-4b8f-95ae-c6ecfd2f7441",
+    "description": "Demonstration collection for web-api-gateway endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/health"
+      }
+    },
+    {
+      "name": "2. Register User",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "var json = pm.response.json();",
+              "if (json.userId) {",
+              "  pm.collectionVariables.set('userId', json.userId);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"web.demo.{{$timestamp}}@example.com\",\n  \"fullName\": \"Web Demo User\",\n  \"phone\": \"+38640111222\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/v1/users"
+      }
+    },
+    {
+      "name": "3. Get User",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/users/{{userId}}"
+      }
+    },
+    {
+      "name": "4. Check Available Scooters",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/scooters/available?lat={{lat}}&lon={{lon}}&radiusMeters={{radiusMeters}}"
+      }
+    },
+    {
+      "name": "5. Start Rental",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "var json = pm.response.json();",
+              "if (json.rentalId) {",
+              "  pm.collectionVariables.set('rentalId', json.rentalId);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"scooterId\": \"{{scooterId}}\",\n  \"startLocation\": {\n    \"lat\": {{lat}},\n    \"lon\": {{lon}}\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/v1/rentals/start"
+      }
+    },
+    {
+      "name": "6. Get Active Rentals",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/rentals/active?userId={{userId}}"
+      }
+    },
+    {
+      "name": "7. End Rental",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"endLocation\": {\n    \"lat\": {{lat}},\n    \"lon\": {{lon}}\n  },\n  \"batteryLevel\": 85\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/v1/rentals/{{rentalId}}/end"
+      }
+    },
+    {
+      "name": "8. (Optional) Update Scooter Status",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"CHARGING\",\n  \"batteryLevel\": 84,\n  \"location\": {\n    \"lat\": {{lat}},\n    \"lon\": {{lon}}\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/v1/scooters/{{scooterId}}/status"
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8083"
+    },
+    {
+      "key": "userId",
+      "value": ""
+    },
+    {
+      "key": "rentalId",
+      "value": ""
+    },
+    {
+      "key": "scooterId",
+      "value": "SCOOTER-1"
+    },
+    {
+      "key": "lat",
+      "value": "46.5547"
+    },
+    {
+      "key": "lon",
+      "value": "15.6459"
+    },
+    {
+      "key": "radiusMeters",
+      "value": "500"
+    }
+  ]
+}

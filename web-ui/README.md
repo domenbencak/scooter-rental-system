@@ -11,13 +11,14 @@
 
 ## Interaction with Services
 
-The UI consumes backend APIs:
+The UI consumes backend APIs through a dedicated gateway:
 
-- `user-service` for account flows,
-- `rental-service` for rental lifecycle,
-- `scooter-availability-service` for availability views.
+- `web-api-gateway` (`http://localhost:8083`) for:
+  - account flows,
+  - rental lifecycle,
+  - scooter availability views.
 
-In future phases, an API gateway or BFF is recommended to simplify client communication and auth handling.
+For mobile clients, a separate `mobile-api-gateway` (`http://localhost:8084`) is provided with mobile-specific endpoints.
 
 ## Planned Screens
 

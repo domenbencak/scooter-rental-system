@@ -13,11 +13,13 @@ The backend services are implemented incrementally in different technologies whi
 
 ## Project Scope
 
-The system consists of four components:
+The system consists of six components:
 
 - `user-service`
 - `rental-service`
 - `scooter-availability-service`
+- `web-api-gateway`
+- `mobile-api-gateway`
 - `web-ui`
 
 ## Architecture Overview
@@ -51,15 +53,26 @@ Detailed architecture notes are in `docs/architecture.md`.
 ### 4) Web UI
 
 - Frontend application for end users.
-- Calls backend APIs via an API gateway/BFF in future stages.
+- Calls backend APIs through dedicated API gateways.
+
+### 5) Web API Gateway
+
+- Node.js + Express.
+- Single entry point for browser clients.
+- Routes REST requests to `user-service` and `rental-service`, and maps scooter gRPC calls to REST.
+
+### 6) Mobile API Gateway
+
+- Python + FastAPI.
+- Mobile-optimized API facade with dedicated endpoint structure and an aggregated dashboard endpoint.
+- Aggregates data from user, rental, and scooter services.
 
 ## Service Communication (Conceptual)
 
 Synchronous communication:
 
-- `web-ui -> user-service` for account flows.
-- `web-ui -> rental-service` for start/end rental flows.
-- `web-ui -> scooter-availability-service` for map/list availability.
+- `web-ui -> web-api-gateway -> user-service/rental-service/scooter-availability-service`.
+- `mobile client -> mobile-api-gateway -> user-service/rental-service/scooter-availability-service`.
 
 Inter-service communication:
 
@@ -106,21 +119,31 @@ scooter-rental-system/
       application/
       interfaces/
       infrastructure/
+    web-api-gateway/
+      README.md
+      src/
+    mobile-api-gateway/
+      README.md
+  ```
+
+## Local Run (with API Gateways)
+
+1. Start all services:
+
+```bash
+docker compose up --build
 ```
 
-## How The System Would Run In The Future
+2. Gateway URLs:
+   - Web gateway: `http://localhost:8083`
+   - Mobile gateway: `http://localhost:8084`
 
-Planned runtime model (not implemented here):
+3. Example gateway calls (curl/Postman):
 
-1. Each service is built and deployed independently.
-2. Services expose versioned HTTP/gRPC APIs.
-3. A gateway/BFF routes external requests from `web-ui` to internal services.
-4. Each service owns its own datastore (database-per-service pattern).
-5. Observability (logs/metrics/traces) is centralized.
+```bash
+# Web gateway - scooters availability
+curl "http://localhost:8083/api/v1/scooters/available?lat=46.5547&lon=15.6459&radiusMeters=500"
 
-Possible local development workflow (future):
-
-1. Start dependencies with Docker Compose or Kubernetes.
-2. Start `user-service`, `rental-service`, and `scooter-availability-service`.
-3. Start `web-ui`.
-4. Run contract tests against API specs.
+# Mobile gateway - aggregated dashboard
+curl "http://localhost:8084/api/mobile/v1/dashboard/<userId>?lat=46.5547&lon=15.6459&radiusMeters=500"
+```

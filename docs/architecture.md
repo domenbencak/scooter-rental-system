@@ -13,6 +13,8 @@ The architecture prioritizes independent evolution, explicit contracts, and clea
 ## 2. High-Level Components
 
 - `web-ui`: user-facing client application.
+- `web-api-gateway`: Node.js gateway for browser clients.
+- `mobile-api-gateway`: Python gateway for mobile clients.
 - `user-service`: manages user registration and retrieval.
 - `rental-service`: controls rental start/end and active rental state.
 - `scooter-availability-service`: provides available scooters and maintains scooter operational status.
@@ -60,9 +62,12 @@ All cross-service collaboration goes through API contracts or events.
 
 ### Synchronous API calls
 
-- `web-ui -> user-service`
-- `web-ui -> rental-service`
-- `web-ui -> scooter-availability-service`
+- `web-ui -> web-api-gateway -> user-service`
+- `web-ui -> web-api-gateway -> rental-service`
+- `web-ui -> web-api-gateway -> scooter-availability-service`
+- `mobile-client -> mobile-api-gateway -> user-service`
+- `mobile-client -> mobile-api-gateway -> rental-service`
+- `mobile-client -> mobile-api-gateway -> scooter-availability-service`
 - `rental-service -> user-service` (validate user existence)
 - `rental-service -> scooter-availability-service` (reserve/release scooter)
 
@@ -97,10 +102,17 @@ The repository layout is business-centered:
 
 ```text
 [Web UI]
-   |--> [User Service]
-   |--> [Rental Service] --> [User Service]
-   |                     --> [Scooter Availability Service]
-   |--> [Scooter Availability Service]
+   |--> [Web API Gateway]
+            |--> [User Service]
+            |--> [Rental Service] --> [User Service]
+            |                     --> [Scooter Availability Service]
+            |--> [Scooter Availability Service]
+
+[Mobile Client]
+   |--> [Mobile API Gateway]
+            |--> [User Service]
+            |--> [Rental Service]
+            |--> [Scooter Availability Service]
 
 Future events:
 [Rental Service] --rental.started/rental.ended--> [Scooter Availability Service]

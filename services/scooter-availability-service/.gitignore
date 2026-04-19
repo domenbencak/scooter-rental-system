@@ -1,4 +1,7 @@
 node_modules/
 data/
 coverage/
+.DS_Store
 *.log
+*.tmp
+*.bak

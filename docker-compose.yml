@@ -75,6 +75,39 @@ services:
     volumes:
       - scooter-availability-data:/app/data
 
+  web-api-gateway:
+    build:
+      context: ./services/web-api-gateway
+    container_name: web-api-gateway
+    depends_on:
+      - user-service
+      - rental-service
+      - scooter-availability-service
+    environment:
+      PORT: 8083
+      USER_SERVICE_BASE_URL: http://user-service:8081
+      RENTAL_SERVICE_BASE_URL: http://rental-service:8082
+      SCOOTER_SERVICE_HOST: scooter-availability-service
+      SCOOTER_SERVICE_PORT: 50051
+    ports:
+      - "8083:8083"
+
+  mobile-api-gateway:
+    build:
+      context: ./services/mobile-api-gateway
+    container_name: mobile-api-gateway
+    depends_on:
+      - user-service
+      - rental-service
+      - scooter-availability-service
+    environment:
+      USER_SERVICE_BASE_URL: http://user-service:8081
+      RENTAL_SERVICE_BASE_URL: http://rental-service:8082
+      SCOOTER_SERVICE_HOST: scooter-availability-service
+      SCOOTER_SERVICE_PORT: 50051
+    ports:
+      - "8084:8084"
+
   grpcui:
     image: fullstorydev/grpcui:latest
     container_name: grpcui

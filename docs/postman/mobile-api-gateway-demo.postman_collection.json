@@ -1,0 +1,180 @@
+{
+  "info": {
+    "name": "Scooter Rental - Mobile API Gateway Demo",
+    "_postman_id": "f6113dae-c68f-4b74-b1c4-c6ba2f0fa648",
+    "description": "Demonstration collection for mobile-api-gateway endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/health"
+      }
+    },
+    {
+      "name": "2. Onboarding - Register User",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "var json = pm.response.json();",
+              "if (json.userId) {",
+              "  pm.collectionVariables.set('userId', json.userId);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"mobile.demo.{{$timestamp}}@example.com\",\n  \"fullName\": \"Mobile Demo User\",\n  \"phone\": \"+38640999888\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/mobile/v1/onboarding/register"
+      }
+    },
+    {
+      "name": "3. Scooters Nearby",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/mobile/v1/scooters/nearby?lat={{lat}}&lon={{lon}}&radiusMeters={{radiusMeters}}"
+      }
+    },
+    {
+      "name": "4. Start Ride",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "var json = pm.response.json();",
+              "if (json.rentalId) {",
+              "  pm.collectionVariables.set('rentalId', json.rentalId);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"scooterId\": \"{{scooterId}}\",\n  \"startLocation\": {\n    \"lat\": {{lat}},\n    \"lon\": {{lon}}\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/mobile/v1/rides/start"
+      }
+    },
+    {
+      "name": "5. Active Rides",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/mobile/v1/rides/active/{{userId}}"
+      }
+    },
+    {
+      "name": "6. Dashboard (Before Finish)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/mobile/v1/dashboard/{{userId}}?lat={{lat}}&lon={{lon}}&radiusMeters={{radiusMeters}}"
+      }
+    },
+    {
+      "name": "7. Finish Ride",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"lat\": {{lat}},\n  \"lon\": {{lon}},\n  \"batteryLevel\": 82\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/mobile/v1/rides/{{rentalId}}/finish"
+      }
+    },
+    {
+      "name": "8. Dashboard (After Finish)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/mobile/v1/dashboard/{{userId}}?lat={{lat}}&lon={{lon}}&radiusMeters={{radiusMeters}}"
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8084"
+    },
+    {
+      "key": "userId",
+      "value": ""
+    },
+    {
+      "key": "rentalId",
+      "value": ""
+    },
+    {
+      "key": "scooterId",
+      "value": "SCOOTER-1"
+    },
+    {
+      "key": "lat",
+      "value": "46.5547"
+    },
+    {
+      "key": "lon",
+      "value": "15.6459"
+    },
+    {
+      "key": "radiusMeters",
+      "value": "500"
+    }
+  ]
+}

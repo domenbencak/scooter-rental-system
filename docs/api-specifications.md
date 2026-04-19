@@ -5,6 +5,7 @@ This file defines API contracts only. It does not include implementation details
 ## Conventions
 
 - REST endpoints are versioned under `/api/v1`.
+- Mobile gateway endpoints are versioned under `/api/mobile/v1`.
 - IDs are UUID strings.
 - Timestamps use ISO-8601 UTC format.
 - Error payloads follow a common pattern:
@@ -215,3 +216,57 @@ service ScooterAvailabilityService {
 - `rental-service -> scooter-availability-service`
   - `PATCH /api/v1/scooters/{scooterId}/status` or `UpdateScooterStatus(...)`
   - Sets scooter to `RENTED` on start and back to `AVAILABLE` on end.
+
+## 4) Web API Gateway (Node.js)
+
+Web gateway is the browser-facing API entry point and exposes:
+
+- `POST /api/v1/users`
+- `GET /api/v1/users/{userId}`
+- `POST /api/v1/rentals/start`
+- `POST /api/v1/rentals/{rentalId}/end`
+- `GET /api/v1/rentals/active?userId={userId}`
+- `GET /api/v1/scooters/available?lat={lat}&lon={lon}&radiusMeters={radius}`
+- `PATCH /api/v1/scooters/{scooterId}/status`
+
+## 5) Mobile API Gateway (Python/FastAPI)
+
+Mobile gateway exposes mobile-specific endpoints and one aggregated dashboard endpoint:
+
+- `POST /api/mobile/v1/onboarding/register`
+- `GET /api/mobile/v1/rides/active/{userId}`
+- `POST /api/mobile/v1/rides/start`
+- `POST /api/mobile/v1/rides/{rentalId}/finish`
+- `GET /api/mobile/v1/scooters/nearby?lat={lat}&lon={lon}&radiusMeters={radius}`
+- `GET /api/mobile/v1/dashboard/{userId}?lat={lat}&lon={lon}&radiusMeters={radius}`
+
+Example dashboard response:
+
+```json
+{
+  "user": {
+    "userId": "a2f7c6c9-3c12-4a8d-8f8d-1b2f2cb2a111",
+    "email": "user@example.com",
+    "fullName": "Jane Doe",
+    "status": "ACTIVE"
+  },
+  "activeRental": {
+    "rentalId": "b3b39fe6-d5d7-4860-95d9-0bd5f7b7c333",
+    "userId": "a2f7c6c9-3c12-4a8d-8f8d-1b2f2cb2a111",
+    "scooterId": "SCOOTER-1",
+    "startedAt": "2026-03-10T09:35:00Z"
+  },
+  "availableScooters": [
+    {
+      "scooterId": "SCOOTER-3",
+      "status": "AVAILABLE",
+      "batteryLevel": 70,
+      "location": {
+        "lat": 46.552,
+        "lon": 15.652
+      },
+      "updatedAt": "2026-03-10T09:35:00Z"
+    }
+  ]
+}
+```
