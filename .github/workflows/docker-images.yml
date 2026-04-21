@@ -1,0 +1,59 @@
+name: docker-images
+
+on:
+  push:
+    paths:
+      - "services/**"
+      - "web-ui/**"
+      - ".github/workflows/docker-images.yml"
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        component:
+          - name: user-service
+            context: ./services/user-service
+          - name: rental-service
+            context: ./services/rental-service
+          - name: scooter-availability-service
+            context: ./services/scooter-availability-service
+          - name: web-api-gateway
+            context: ./services/web-api-gateway
+          - name: mobile-api-gateway
+            context: ./services/mobile-api-gateway
+          - name: web-ui
+            context: ./web-ui
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Generate image metadata
+        id: metadata
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/scooter-rental-system-${{ matrix.component.name }}
+          tags: |
+            type=raw,value=latest
+            type=sha
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.component.context }}
+          push: true
+          tags: ${{ steps.metadata.outputs.tags }}
+          labels: ${{ steps.metadata.outputs.labels }}

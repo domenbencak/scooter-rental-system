@@ -37,3 +37,11 @@ npm start
 ```
 
 Default port: `8083`.
+
+## CORS
+
+For browser clients (for example `web-ui` on `http://localhost:8085`), configure allowed origins with:
+
+- `CORS_ORIGIN` (comma-separated list), example: `http://localhost:8085,http://localhost:3000`
+
+If `CORS_ORIGIN` is not set, all origins are allowed.

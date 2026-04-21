@@ -19,6 +19,17 @@ The architecture prioritizes independent evolution, explicit contracts, and clea
 - `rental-service`: controls rental start/end and active rental state.
 - `scooter-availability-service`: provides available scooters and maintains scooter operational status.
 
+### Web UI Micro Frontends Design
+
+`web-ui` is implemented in micro frontends style:
+
+- `shell`: host application that manages navigation, API base URL, and shared context (`userId`, `rentalId`, `scooterId`)
+- `users-mfe`: user registration and lookup flows
+- `rentals-mfe`: rental lifecycle operations (start, end, active rentals)
+- `scooters-mfe`: scooter availability and status update operations
+
+The shell dynamically imports each micro frontend module at runtime, so each frontend capability can evolve independently while keeping a unified user experience.
+
 ## 3. Clean Architecture Inside Each Service
 
 Each service contains four layers:

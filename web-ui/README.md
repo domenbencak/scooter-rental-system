@@ -1,30 +1,41 @@
-# Web UI
+# Web UI (Micro Frontends)
 
-## Responsibility
+`web-ui` is implemented as a **Micro Frontends** client:
 
-`web-ui` is the user-facing frontend application for:
+- `shell` - host/container application
+- `mfes/users` - user registration and user lookup
+- `mfes/rentals` - rental start, end, and active rentals
+- `mfes/scooters` - available scooters and scooter status updates
 
-- account creation,
-- browsing nearby available scooters,
-- starting a rental,
-- ending a rental.
+The shell dynamically loads each micro frontend as a separate browser module and keeps shared context (`userId`, `rentalId`, `scooterId`) between them.
 
-## Interaction with Services
+## Covered Backend Functionalities
 
-The UI consumes backend APIs through a dedicated gateway:
+The UI supports testing all web gateway endpoints:
 
-- `web-api-gateway` (`http://localhost:8083`) for:
-  - account flows,
-  - rental lifecycle,
-  - scooter availability views.
+- `POST /api/v1/users`
+- `GET /api/v1/users/{userId}`
+- `POST /api/v1/rentals/start`
+- `POST /api/v1/rentals/{rentalId}/end`
+- `GET /api/v1/rentals/active?userId={userId}`
+- `GET /api/v1/scooters/available?lat={lat}&lon={lon}&radiusMeters={radius}`
+- `PATCH /api/v1/scooters/{scooterId}/status`
 
-For mobile clients, a separate `mobile-api-gateway` (`http://localhost:8084`) is provided with mobile-specific endpoints.
+## Run with Docker Compose
 
-## Planned Screens
+From repository root:
 
-- Registration/Login
-- Scooter availability map/list
-- Active rental dashboard
-- Rental history summary
+```bash
+docker compose up --build web-ui web-api-gateway user-service rental-service scooter-availability-service
+```
 
-No frontend implementation is included yet.
+Open:
+
+- Web UI: `http://localhost:8085`
+- Web API Gateway: `http://localhost:8083`
+
+You can change the gateway URL directly in the shell header if needed.
+
+## Docker Image
+
+`web-ui` has its own `Dockerfile` and is included in the DockerHub publish workflow.

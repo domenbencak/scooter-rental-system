@@ -1,5 +1,6 @@
 const crypto = require("crypto");
 const path = require("path");
+const cors = require("cors");
 const express = require("express");
 const grpc = require("@grpc/grpc-js");
 const protoLoader = require("@grpc/proto-loader");
@@ -28,6 +29,17 @@ const scooterClient = new scooterAvailabilityProto.ScooterAvailabilityService(
 );
 
 const app = express();
+const corsOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(",").map((origin) => origin.trim()).filter(Boolean)
+  : true;
+
+app.use(
+  cors({
+    origin: corsOrigins,
+    methods: ["GET", "POST", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "X-Trace-Id"],
+  }),
+);
 app.use(express.json());
 
 function resolveTraceId(request) {

@@ -89,6 +89,7 @@ services:
       RENTAL_SERVICE_BASE_URL: http://rental-service:8082
       SCOOTER_SERVICE_HOST: scooter-availability-service
       SCOOTER_SERVICE_PORT: 50051
+      CORS_ORIGIN: http://localhost:8085
     ports:
       - "8083:8083"
 
@@ -107,6 +108,15 @@ services:
       SCOOTER_SERVICE_PORT: 50051
     ports:
       - "8084:8084"
+
+  web-ui:
+    build:
+      context: ./web-ui
+    container_name: web-ui
+    depends_on:
+      - web-api-gateway
+    ports:
+      - "8085:80"
 
   grpcui:
     image: fullstorydev/grpcui:latest

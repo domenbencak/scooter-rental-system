@@ -135,8 +135,9 @@ docker compose up --build
 ```
 
 2. Gateway URLs:
-   - Web gateway: `http://localhost:8083`
-   - Mobile gateway: `http://localhost:8084`
+    - Web gateway: `http://localhost:8083`
+    - Mobile gateway: `http://localhost:8084`
+    - Web UI (Micro Frontends): `http://localhost:8085`
 
 3. Example gateway calls (curl/Postman):
 
@@ -147,3 +148,23 @@ curl "http://localhost:8083/api/v1/scooters/available?lat=46.5547&lon=15.6459&ra
 # Mobile gateway - aggregated dashboard
 curl "http://localhost:8084/api/mobile/v1/dashboard/<userId>?lat=46.5547&lon=15.6459&radiusMeters=500"
 ```
+
+## Docker Image Build and Publish
+
+Workflow `.github/workflows/docker-images.yml` builds and publishes Docker images for all components:
+
+- `user-service`
+- `rental-service`
+- `scooter-availability-service`
+- `web-api-gateway`
+- `mobile-api-gateway`
+- `web-ui`
+
+Published image naming convention:
+
+- `<dockerhub-username>/scooter-rental-system-<component>`
+
+Required GitHub repository secrets:
+
+- `DOCKERHUB_USERNAME`
+- `DOCKERHUB_TOKEN`
