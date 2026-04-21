@@ -74,6 +74,18 @@ services:
       - "50051:50051"
     volumes:
       - scooter-availability-data:/app/data
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "const net=require('net');const socket=net.connect({host:'127.0.0.1',port:50051});socket.on('connect',()=>{socket.end();process.exit(0);});socket.on('error',()=>process.exit(1));setTimeout(()=>process.exit(1),2000);",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
 
   web-api-gateway:
     build:
@@ -122,8 +134,10 @@ services:
     image: fullstorydev/grpcui:latest
     container_name: grpcui
     depends_on:
-      - scooter-availability-service
+      scooter-availability-service:
+        condition: service_healthy
     command: ["-plaintext", "scooter-availability-service:50051"]
+    restart: unless-stopped
     ports:
       - "8080:8080"
 
