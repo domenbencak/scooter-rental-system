@@ -5,7 +5,9 @@ import com.scooterrental.rentalservice.application.port.ScooterGateway;
 import com.scooterrental.rentalservice.domain.GeoLocation;
 import com.scooterrental.rentalservice.domain.exception.ExternalServiceException;
 import com.scooterrental.rentalservice.domain.exception.ScooterUnavailableException;
+import com.scooterrental.rentalservice.infrastructure.config.ResilienceProperties;
 import com.scooterrental.rentalservice.infrastructure.config.ScooterServiceProperties;
+import com.scooterrental.rentalservice.infrastructure.resilience.DependencyCircuitBreaker;
 import com.scooterrental.rentalservice.scooteravailability.CheckAvailableScootersRequest;
 import com.scooterrental.rentalservice.scooteravailability.CheckAvailableScootersResponse;
 import com.scooterrental.rentalservice.scooteravailability.Scooter;
@@ -22,6 +24,9 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Clock;
+import java.time.Duration;
+
 @Component
 public class ScooterAvailabilityGrpcClient implements ScooterGateway {
 
@@ -29,13 +34,22 @@ public class ScooterAvailabilityGrpcClient implements ScooterGateway {
 
     private final ScooterAvailabilityServiceGrpc.ScooterAvailabilityServiceStub scooterAvailabilityStub;
     private final ScooterServiceProperties properties;
+    private final DependencyCircuitBreaker scooterServiceCircuitBreaker;
 
     public ScooterAvailabilityGrpcClient(
             ScooterAvailabilityServiceGrpc.ScooterAvailabilityServiceStub scooterAvailabilityStub,
-            ScooterServiceProperties properties
+            ScooterServiceProperties properties,
+            ResilienceProperties resilienceProperties,
+            Clock clock
     ) {
         this.scooterAvailabilityStub = scooterAvailabilityStub;
         this.properties = properties;
+        this.scooterServiceCircuitBreaker = new DependencyCircuitBreaker(
+                "scooter-availability-service",
+                resilienceProperties.getScooterService().getFailureThreshold(),
+                Duration.ofSeconds(resilienceProperties.getScooterService().getOpenStateDurationSeconds()),
+                clock
+        );
     }
 
     @Override
@@ -93,22 +107,25 @@ public class ScooterAvailabilityGrpcClient implements ScooterGateway {
     }
 
     private <T> Mono<T> unaryCall(GrpcInvoker<T> invoker) {
-        return Mono.create(sink -> invoker.invoke(new StreamObserver<>() {
-            @Override
-            public void onNext(T value) {
-                sink.success(value);
-            }
+        return scooterServiceCircuitBreaker.execute(
+                () -> Mono.create(sink -> invoker.invoke(new StreamObserver<>() {
+                    @Override
+                    public void onNext(T value) {
+                        sink.success(value);
+                    }
 
-            @Override
-            public void onError(Throwable throwable) {
-                sink.error(mapGrpcError(throwable));
-            }
+                    @Override
+                    public void onError(Throwable throwable) {
+                        sink.error(mapGrpcError(throwable));
+                    }
 
-            @Override
-            public void onCompleted() {
-                // no-op for unary calls
-            }
-        }));
+                    @Override
+                    public void onCompleted() {
+                        // no-op for unary calls
+                    }
+                })),
+                this::isDependencyFailure
+        );
     }
 
     private RuntimeException mapGrpcError(Throwable throwable) {
@@ -120,6 +137,10 @@ public class ScooterAvailabilityGrpcClient implements ScooterGateway {
             return new ExternalServiceException("Scooter availability service call failed.", statusException);
         }
         return new ExternalServiceException("Scooter availability service call failed.", throwable);
+    }
+
+    private boolean isDependencyFailure(Throwable error) {
+        return error instanceof ExternalServiceException;
     }
 
     @FunctionalInterface

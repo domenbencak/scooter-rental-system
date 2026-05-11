@@ -156,6 +156,62 @@ class RentalApplicationServiceTest {
     }
 
     @Test
+    void shouldCompensateScooterReservationWhenStartRentalSaveFails() {
+        UUID userId = UUID.randomUUID();
+        GeoLocation startLocation = new GeoLocation(46.5547, 15.6459);
+        StartRentalCommand command = new StartRentalCommand(userId, "SCOOTER-1", startLocation);
+        RuntimeException persistenceError = new RuntimeException("mongo write failed");
+
+        when(userGateway.getUser(userId)).thenReturn(Mono.just(new UserAccount(userId, "ACTIVE")));
+        when(rentalRepository.existsActiveRentalByUserId(userId)).thenReturn(Mono.just(false));
+        when(scooterGateway.reserveScooterForRental("SCOOTER-1", startLocation))
+                .thenReturn(Mono.just(new ScooterSnapshot("SCOOTER-1", "RENTED", 87, startLocation)));
+        when(rentalRepository.save(any(Rental.class))).thenReturn(Mono.error(persistenceError));
+        when(scooterGateway.releaseScooterFromRental("SCOOTER-1", startLocation, 87))
+                .thenReturn(Mono.just(new ScooterSnapshot("SCOOTER-1", "AVAILABLE", 87, startLocation)));
+
+        StepVerifier.create(rentalApplicationService.startRental(command))
+                .expectErrorSatisfies(error -> assertThat(error).isSameAs(persistenceError))
+                .verify();
+
+        verify(scooterGateway).releaseScooterFromRental("SCOOTER-1", startLocation, 87);
+        verify(rentalEventPublisher, never()).publishRentalStarted(any(Rental.class));
+    }
+
+    @Test
+    void shouldCompensateScooterReleaseWhenEndRentalSaveFails() {
+        UUID userId = UUID.randomUUID();
+        GeoLocation endLocation = new GeoLocation(46.5601, 15.6500);
+        RuntimeException persistenceError = new RuntimeException("mongo write failed");
+        Rental existingRental = new Rental(
+                "rental-1",
+                userId,
+                "SCOOTER-1",
+                RentalStatus.ACTIVE,
+                Instant.parse("2026-03-28T09:45:30Z"),
+                null,
+                new GeoLocation(46.5547, 15.6459),
+                null,
+                90,
+                null
+        );
+
+        when(rentalRepository.findById("rental-1")).thenReturn(Mono.just(existingRental));
+        when(scooterGateway.releaseScooterFromRental("SCOOTER-1", endLocation, 80))
+                .thenReturn(Mono.just(new ScooterSnapshot("SCOOTER-1", "AVAILABLE", 80, endLocation)));
+        when(rentalRepository.save(any(Rental.class))).thenReturn(Mono.error(persistenceError));
+        when(scooterGateway.reserveScooterForRental("SCOOTER-1", endLocation))
+                .thenReturn(Mono.just(new ScooterSnapshot("SCOOTER-1", "RENTED", 80, endLocation)));
+
+        StepVerifier.create(rentalApplicationService.endRental("rental-1", new EndRentalCommand(endLocation, 80)))
+                .expectErrorSatisfies(error -> assertThat(error).isSameAs(persistenceError))
+                .verify();
+
+        verify(scooterGateway).reserveScooterForRental("SCOOTER-1", endLocation);
+        verify(rentalEventPublisher, never()).publishRentalEnded(any(Rental.class));
+    }
+
+    @Test
     void shouldReturnActiveRentalsForUser() {
         UUID userId = UUID.randomUUID();
         Rental firstRental = Rental.start(

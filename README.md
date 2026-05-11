@@ -87,6 +87,8 @@ Future asynchronous options (recommended):
 Current asynchronous implementation:
 
 - `rental-service -> ActiveMQ` publishes `rental.started` and `rental.ended` events on topic `rental.lifecycle`.
+- `rental-service` uses a Saga orchestration flow with compensating actions for rental start/end persistence failures.
+- `rental-service` uses Circuit Breaker protection for outbound calls to `user-service` and `scooter-availability-service`.
 
 See `docs/architecture.md` and `docs/api-specifications.md` for details.
 

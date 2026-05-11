@@ -93,6 +93,13 @@ Asynchronous messaging reduces coupling and improves resiliency for projections 
 Current implementation note:
 
 - `rental-service` publishes `rental.started` and `rental.ended` events to ActiveMQ topic `rental.lifecycle`.
+- `rental-service` now applies an orchestration **Saga** for rental start/end flows with compensating actions when persistence fails:
+  - start flow compensation: release scooter back to `AVAILABLE` if rental save fails,
+  - end flow compensation: reserve scooter back to `RENTED` if rental save fails after release.
+- `rental-service` now applies **Circuit Breaker** protection for outbound calls to `user-service` and `scooter-availability-service`:
+  - circuit opens after repeated dependency failures,
+  - calls are short-circuited while open,
+  - circuit transitions to half-open and closes after a successful probe call.
 
 ## 6. Screaming Architecture Convention
 

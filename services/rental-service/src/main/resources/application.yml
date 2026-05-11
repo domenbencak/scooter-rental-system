@@ -26,6 +26,13 @@ app:
     host: ${SCOOTER_SERVICE_HOST:localhost}
     port: ${SCOOTER_SERVICE_PORT:50051}
     availability-radius-meters: ${SCOOTER_AVAILABILITY_RADIUS_METERS:500}
+  resilience:
+    user-service:
+      failure-threshold: ${USER_SERVICE_CIRCUIT_FAILURE_THRESHOLD:3}
+      open-state-duration-seconds: ${USER_SERVICE_CIRCUIT_OPEN_SECONDS:20}
+    scooter-service:
+      failure-threshold: ${SCOOTER_SERVICE_CIRCUIT_FAILURE_THRESHOLD:3}
+      open-state-duration-seconds: ${SCOOTER_SERVICE_CIRCUIT_OPEN_SECONDS:20}
   messaging:
     rental-topic: ${RENTAL_EVENTS_TOPIC:rental.lifecycle}
 

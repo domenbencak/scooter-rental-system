@@ -50,6 +50,7 @@ Alternative gRPC methods:
 - Calls `scooter-availability-service` via gRPC to validate nearby scooter availability and set scooter state:
   - `AVAILABLE -> RENTED` on rental start,
   - `RENTED -> AVAILABLE` on rental end.
+- Protects both dependencies with a circuit breaker (for `user-service` and `scooter-availability-service`) to fail fast during repeated outages.
 - Publishes domain events to ActiveMQ topic `rental.lifecycle`:
   - `rental.started`
   - `rental.ended`
@@ -74,6 +75,9 @@ Alternative gRPC methods:
 - Prevent more than one active rental per user
 - Validate scooter availability near the requested start location through gRPC
 - End rental and release scooter back to `AVAILABLE`
+- Orchestration saga compensation:
+  - if start rental persistence fails, scooter reservation is compensated to `AVAILABLE`
+  - if end rental persistence fails after release, scooter status is compensated back to `RENTED`
 - Persist rental records in MongoDB
 - Publish rental lifecycle events to ActiveMQ
 - Structured request and business logs
@@ -91,6 +95,10 @@ Alternative gRPC methods:
 - `ACTIVEMQ_USER` default: `admin`
 - `ACTIVEMQ_PASSWORD` default: `admin`
 - `RENTAL_EVENTS_TOPIC` default: `rental.lifecycle`
+- `USER_SERVICE_CIRCUIT_FAILURE_THRESHOLD` default: `3`
+- `USER_SERVICE_CIRCUIT_OPEN_SECONDS` default: `20`
+- `SCOOTER_SERVICE_CIRCUIT_FAILURE_THRESHOLD` default: `3`
+- `SCOOTER_SERVICE_CIRCUIT_OPEN_SECONDS` default: `20`
 
 ## Run Locally
 
